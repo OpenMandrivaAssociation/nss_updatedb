@@ -1,6 +1,6 @@
 %define	name nss_updatedb
-%define	version	7
-%define rel 2
+%define	version	8
+%define rel 1
 
 %{!?mdkversion: %define notmdk 1}
 
@@ -8,7 +8,7 @@ Summary: 	A caching nss module for disconnected operation
 Name:      	%{name}
 Version:   	%{version}
 Release:   	%mkrel %rel
-Source: 	http://www.padl.com/download/%{name}-%{version}.tar.bz2
+Source: 	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Source1:	nss_updatedb.cron
 Source2:	nss_updatedb.sysconfig
 # Uses getgrouplist(3) to find out the groups a user belongs to

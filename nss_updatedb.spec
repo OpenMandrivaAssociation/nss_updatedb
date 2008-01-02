@@ -19,6 +19,7 @@ Patch1:		nss_updatedb-3-no-autologremove-on-db4.1.patch
 Patch2:		nss_updatedb-4-key.patch
 Group:		System/Libraries
 License:	GPL
+Buildroot:	%{_tmppath}/%{name}-%{version}-buildroot
 %if %{?notmdk:1}%{?!notmdk:0}
 BuildRequires:	db4-devel >= 4.0
 %else

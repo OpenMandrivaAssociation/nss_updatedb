@@ -1,6 +1,6 @@
 %define	name nss_updatedb
 %define	version	8
-%define rel 1
+%define rel 2
 
 %{!?mdkversion: %define notmdk 1}
 
@@ -46,11 +46,14 @@ install -m 0644 %{SOURCE3} .
 
 %build
 autoreconf
-%configure2_5x
+
 %if %{?!notmdk:1}%{?notmdk:0}
-echo "#define DB_DIR \"/var/lib/misc\"" >> config.h
+echo "#define DB_DIR \"/var/lib/misc\"" >> config.h.in
 %endif
-echo "#define LIBNSS_DIR \"/%{_lib}\"" >> config.h
+echo "#define LIBNSS_DIR \"/%{_lib}\"" >> config.h.in
+
+%configure2_5x
+
 %make %{?!notmdk:DEFS="-DHAVE_CONFIG_H -I/usr/include/db_nss"}
 
 gcc %{optflags} -Werror getgrouplist.c -o getgrouplist

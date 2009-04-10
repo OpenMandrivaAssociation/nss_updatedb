@@ -15,7 +15,7 @@ Source2:	nss_updatedb.sysconfig
 # without enumerating all possible groups first
 Source3:	getgrouplist.c
 Patch0:		nss_updatedb-libdir.patch
-Patch1:		nss_updatedb-3-no-autologremove-on-db4.1.patch
+Patch1:		nss_updatedb-3-autologremove.patch
 Patch2:		nss_updatedb-4-key.patch
 Group:		System/Libraries
 License:	GPL
@@ -40,7 +40,7 @@ also available from PADL.
 %prep
 %setup -q
 %patch0 -p1 -b .libdir
-%patch1 -p1 -b .db41
+%patch1 -p1 -b .autologremove
 %patch2 -p1 -b .key
 install -m 0644 %{SOURCE3} .
 

@@ -1,6 +1,6 @@
 %define	name nss_updatedb
 %define	version	8
-%define rel 6
+%define rel 7
 
 %{!?mdkversion: %define notmdk 1}
 

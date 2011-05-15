@@ -1,13 +1,12 @@
-%define	name nss_updatedb
-%define	version	8
-%define rel 8
-
 %{!?mdkversion: %define notmdk 1}
 
 Summary: 	A caching nss module for disconnected operation
-Name:      	%{name}
-Version:   	%{version}
-Release:   	%mkrel %rel
+Name:      	nss_updatedb
+Version:   	10
+Release:   	%mkrel 1
+Group:		System/Libraries
+License:	GPL
+URL:		http://www.padl.com/
 Source: 	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Source1:	nss_updatedb.cron
 Source2:	nss_updatedb.sysconfig
@@ -15,19 +14,15 @@ Source2:	nss_updatedb.sysconfig
 # without enumerating all possible groups first
 Source3:	getgrouplist.c
 Patch0:		nss_updatedb-libdir.patch
-Patch1:		nss_updatedb-3-autologremove.patch
 Patch2:		nss_updatedb-4-key.patch
-Group:		System/Libraries
-License:	GPL
-Buildroot:	%{_tmppath}/%{name}-%{version}-buildroot
 %if %{?notmdk:1}%{?!notmdk:0}
 BuildRequires:	db4-devel >= 4.0
 %else
 BuildRequires:	db_nss-devel >= 4.2.52-5mdk
 %endif
 BuildRequires:	automake1.4
-Url:		http://www.padl.com/
 Requires:	nss_db
+Buildroot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 The nss_updatedb utility maintains a local cache of network
@@ -40,12 +35,11 @@ also available from PADL.
 %prep
 %setup -q
 %patch0 -p1 -b .libdir
-%patch1 -p1 -b .autologremove
 %patch2 -p1 -b .key
 install -m 0644 %{SOURCE3} .
 
 %build
-autoreconf
+autoreconf -fi
 
 %if %{?!notmdk:1}%{?notmdk:0}
 echo "#define DB_DIR \"/var/lib/misc\"" >> config.h.in
@@ -75,16 +69,14 @@ done
 mkdir %{buildroot}%{_bindir}
 install -m 0755 getgrouplist %{buildroot}%{_bindir}
 
-%files
-%defattr(-,root,root,755)
-%doc AUTHORS README ChangeLog
-%{_sbindir}/nss_updatedb*
-%{_bindir}/getgrouplist
-%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
-%{_sysconfdir}/cron*/*
-
 %clean
 rm -rf %{buildroot}
 
-
-
+%files
+%defattr(-,root,root,755)
+%doc AUTHORS README ChangeLog
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
+%{_sbindir}/nss_updatedb*
+%{_bindir}/getgrouplist
+%{_sysconfdir}/cron*/*
+%{_mandir}/man8/nss_updatedb.8*

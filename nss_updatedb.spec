@@ -3,7 +3,7 @@ Name:      	nss_updatedb
 Version:   	10
 Release:   	2
 Group:		System/Libraries
-License:	GPL
+License:	GPLv2+
 URL:		http://www.padl.com/
 Source0: 	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Source1:	nss_updatedb.cron

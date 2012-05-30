@@ -33,7 +33,6 @@ cp %{SOURCE3} .
 autoreconf -fi
 
 %build
-echo "#define DB_DIR \"/var/lib/misc\"" >> config.h.in
 echo "#define LIBNSS_DIR \"/%{_lib}\"" >> config.h.in
 
 %configure2_5x

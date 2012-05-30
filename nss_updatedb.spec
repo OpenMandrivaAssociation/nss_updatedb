@@ -38,7 +38,7 @@ echo "#define LIBNSS_DIR \"/%{_lib}\"" >> config.h.in
 %configure2_5x
 %make
 
-gcc %{optflags} -Werror getgrouplist.c -o getgrouplist
+gcc %{ldflags} %{optflags} -Werror getgrouplist.c -o getgrouplist
 
 %install
 %makeinstall

@@ -30,10 +30,9 @@ also available from PADL.
 %patch0 -p1 -b .libdir~
 %patch2 -p1 -b .key~
 cp %{SOURCE3} .
-
-%build
 autoreconf -fi
 
+%build
 echo "#define DB_DIR \"/var/lib/misc\"" >> config.h.in
 echo "#define LIBNSS_DIR \"/%{_lib}\"" >> config.h.in
 

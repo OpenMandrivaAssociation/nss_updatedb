@@ -15,6 +15,7 @@ Patch0:		nss_updatedb-libdir.patch
 Patch2:		nss_updatedb-4-key.patch
 Patch3:		nss_updatedb-10-explicitly-link-against-libdb.patch
 BuildRequires:	db_nss-devel >= 4.2.52-5mdk
+BuildRequires:	db-devel
 BuildRequires:	automake1.4
 
 %description

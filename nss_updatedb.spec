@@ -15,7 +15,6 @@ Patch0:		nss_updatedb-libdir.patch
 Patch2:		nss_updatedb-4-key.patch
 BuildRequires:	db_nss-devel >= 4.2.52-5mdk
 BuildRequires:	automake1.4
-Requires:	nss_db
 
 %description
 The nss_updatedb utility maintains a local cache of network

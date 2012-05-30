@@ -13,6 +13,7 @@ Source2:	nss_updatedb.sysconfig
 Source3:	getgrouplist.c
 Patch0:		nss_updatedb-libdir.patch
 Patch2:		nss_updatedb-4-key.patch
+Patch3:		nss_updatedb-10-explicitly-link-against-libdb.patch
 BuildRequires:	db_nss-devel >= 4.2.52-5mdk
 BuildRequires:	automake1.4
 
@@ -28,6 +29,7 @@ also available from PADL.
 %setup -q
 %patch0 -p1 -b .libdir~
 %patch2 -p1 -b .key~
+%patch3 -p1 -b .link_db~
 cp %{SOURCE3} .
 autoreconf -fi
 

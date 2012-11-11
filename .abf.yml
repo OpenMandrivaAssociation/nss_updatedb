@@ -1,0 +1,5 @@
+sources:
+  "getgrouplist.c:"	3de9338724eb7d4e3e3e32a34c00c3a3b41e9ad0
+  "nss_updatedb-10.tar.gz:"	4dbe7daacd8580bb896a7e6ee5006ad3d16dc646
+  "nss_updatedb.cron:"	1380677db197649edf8b4b9a5917e77a009ab561
+  "nss_updatedb.sysconfig:"	905fdfa0fce652210f2b6cd5b6d6ab514328b516

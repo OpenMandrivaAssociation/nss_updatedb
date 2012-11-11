@@ -1,0 +1,26 @@
+diff -Naurp nss_updatedb-10/updatedb.c nss_updatedb-10.oden/updatedb.c
+--- nss_updatedb-10/updatedb.c	2008-04-23 16:39:14.000000000 +0200
++++ nss_updatedb-10.oden/updatedb.c	2011-05-15 16:16:13.000000000 +0200
+@@ -47,7 +47,7 @@ enum nss_status nss_backend_open(const c
+ 
+ 	*handle_p = NULL;
+ 
+-	snprintf(libpath, sizeof(libpath), "libnss_%s.so.2", dbname);
++       snprintf(libpath, sizeof(libpath), LIBNSS_DIR "/libnss_%s.so.2", dbname);
+ 
+ 	handle = (nss_backend_handle_t *)calloc(1, sizeof(*handle));
+ 	if (handle == NULL) {
+diff -Naurp nss_updatedb-10/updatedb.h nss_updatedb-10.oden/updatedb.h
+--- nss_updatedb-10/updatedb.h	2008-04-23 16:39:14.000000000 +0200
++++ nss_updatedb-10.oden/updatedb.h	2011-05-15 16:13:01.000000000 +0200
+@@ -25,6 +25,10 @@
+ #define DB_DIR		"/var/db"
+ #endif
+ 
++#ifndef LIBNSS_DIR
++#define LIBNSS_DIR   "/lib"
++#endif
++
+ #define DB_PASSWD	DB_DIR "/passwd.db"
+ #define DB_GROUP	DB_DIR "/group.db"
+ 

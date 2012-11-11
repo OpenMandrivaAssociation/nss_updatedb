@@ -1,0 +1,161 @@
+diff -Naurp nss_updatedb-10/main.c nss_updatedb-10.oden/main.c
+--- nss_updatedb-10/main.c	2008-04-23 16:39:14.000000000 +0200
++++ nss_updatedb-10.oden/main.c	2011-05-15 16:22:06.000000000 +0200
+@@ -40,7 +40,7 @@ static int nss_err2exitcode(enum nss_sta
+ 
+ static void usage(void)
+ {
+-	fprintf(stderr, "Usage: nss_updatedb [nameservice] [passwd|group]\n");
++	fprintf(stderr, "Usage: nss_updatedb [nameservice] [passwd|group] [<user>|<group>]\n");
+ 	exit(nss_err2exitcode(NSS_STATUS_UNAVAIL));
+ }
+ 
+@@ -75,8 +75,9 @@ int main(int argc, char *argv[])
+ 	unsigned maps = 0;
+ 	char *dbname;
+ 	enum nss_status status;
+-
+-	if (argc < 2 || argc > 3) {
++	char *key = NULL;
++	
++	if (argc < 2) {
+ 		usage();
+ 	}
+ 
+@@ -86,7 +87,7 @@ int main(int argc, char *argv[])
+ 		exit(nss_err2exitcode(NSS_STATUS_UNAVAIL));
+ 	}
+ 
+-	if (argc == 3) {
++	if (argc == 3 || argc == 4) {
+ 		char *mapname;
+ 
+ 		mapname = argv[2];
+@@ -95,8 +96,12 @@ int main(int argc, char *argv[])
+ 			maps = MAP_PASSWD;
+ 		else if (strcmp(mapname, "group") == 0)
+ 			maps = MAP_GROUP;
++		else if (strcmp(mapname, "both") == 0)
++			maps = MAP_ALL;
+ 		else
+ 			usage();
++
++		key = argv[3];
+ 	} else {
+ 		maps = MAP_ALL;
+ 	}
+@@ -108,7 +113,7 @@ int main(int argc, char *argv[])
+ 
+ 	if (maps & MAP_PASSWD) {
+ 		printf("passwd... ");
+-		status = nss_update_db(handle, MAP_PASSWD, DB_PASSWD);
++		status = nss_update_db(handle, MAP_PASSWD, DB_PASSWD, key);
+ 		if (status != NSS_STATUS_SUCCESS) {
+ 			printf("%s.\n", nss_err2string(status));
+ 			exit(nss_err2exitcode(status));
+@@ -118,7 +123,7 @@ int main(int argc, char *argv[])
+ 
+ 	if (maps & MAP_GROUP) {
+ 		printf("group... ");
+-		status = nss_update_db(handle, MAP_GROUP, DB_GROUP);
++		status = nss_update_db(handle, MAP_GROUP, DB_GROUP, key);
+ 		if (status != NSS_STATUS_SUCCESS) {
+ 			printf("%s.\n", nss_err2string(status));
+ 			exit(nss_err2exitcode(status));
+diff -Naurp nss_updatedb-10/updatedb.c nss_updatedb-10.oden/updatedb.c
+--- nss_updatedb-10/updatedb.c	2011-05-15 16:22:33.000000000 +0200
++++ nss_updatedb-10.oden/updatedb.c	2011-05-15 16:20:35.000000000 +0200
+@@ -36,6 +36,7 @@ typedef struct nss_vtable {
+ 	enum nss_status (*setent)(void);
+ 	enum nss_status (*getent)(void *, char *, size_t, int *);
+ 	enum nss_status (*endent)(void);
++	enum nss_status (*getnam)(const char *, void *, char *, size_t, void **);
+ } nss_vtable_t;
+ 
+ 
+@@ -122,6 +123,15 @@ static enum nss_status _nss_get_vtable(n
+ 		return NSS_STATUS_UNAVAIL;
+ 	}
+ 
++	snprintf(function, sizeof(function), "_nss_%s_get%snam_r",
++		 handle->dbname, prefix);
++	vtable->getnam = dlsym(handle->dlhandle, function);
++	if (vtable->endent == NULL) {
++		fprintf(stderr, "Failed to find symbol %s: %s\n",
++			function, dlerror());
++		return NSS_STATUS_UNAVAIL;
++	}
++	
+ 	return NSS_STATUS_SUCCESS;
+ }
+ 
+@@ -199,9 +209,41 @@ tryagain:
+ 	return (status == NSS_STATUS_NOTFOUND) ? NSS_STATUS_SUCCESS : status;
+ }
+ 
++static enum nss_status _nss_entry(const char *key,
++				  nss_backend_handle_t *handle,
++				  nss_vtable_t *vtable,
++				  enum nss_status (*callback)(nss_backend_handle_t *, void *, void *),
++				  void *private)
++{
++	enum nss_status status;
++	union {
++		struct passwd pw;
++		struct group gr;
++	} result;
++	void *presult;
++	long len = sysconf(_SC_GETPW_R_SIZE_MAX);
++	char * buf = malloc(len);
++	  
++	if (buf == NULL) {
++		return NSS_STATUS_TRYAGAIN;
++	}
++	
++	status = vtable->getnam(key, &result, buf, len, &presult);
++
++	if (status != NSS_STATUS_SUCCESS) {
++		fprintf(stderr, "Unable to get entry for %s\n", key);
++		goto end;
++	}
++	status = callback(handle, (void *)&result, private);
++ end:
++	free(buf);
++	return status;
++}
++
+ enum nss_status nss_update_db(nss_backend_handle_t *handle,
+ 			      unsigned map,
+-			      const char *filename)
++			      const char *filename,
++			      const char *key)
+ {
+ 	enum nss_status (*callback)(nss_backend_handle_t *, void *, void *);
+ 	nss_vtable_t vtable;
+@@ -227,7 +269,12 @@ enum nss_status nss_update_db(nss_backen
+ 		return status;
+ 	}
+ 
+-	status = _nss_enumerate(handle, &vtable, callback, cache);
++	if (key) {
++		status = _nss_entry(key, handle, &vtable, callback, cache);
++	} else {
++		status = _nss_enumerate(handle, &vtable, callback, cache);
++	}
++	
+ 	if (status == NSS_STATUS_SUCCESS) {
+ 		status = nss_cache_commit(cache);
+ 	} else {
+diff -Naurp nss_updatedb-10/updatedb.h nss_updatedb-10.oden/updatedb.h
+--- nss_updatedb-10/updatedb.h	2011-05-15 16:22:33.000000000 +0200
++++ nss_updatedb-10.oden/updatedb.h	2011-05-15 16:20:35.000000000 +0200
+@@ -40,7 +40,8 @@ enum nss_status nss_backend_open(const c
+ 
+ enum nss_status nss_update_db(nss_backend_handle_t *handle,
+ 			      unsigned dbname,
+-			      const char *filename);
++			      const char *filename,
++			      const char *key);
+ 
+ enum nss_status nss_backend_close(nss_backend_handle_t **handle);
+ 

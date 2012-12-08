@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Script to run nss_updatedb <network name service>, intended to be run
+# from cron
+
+# If we were called from /etc/cron.hourly, and UPDATENSS=hourly, we run
+# nss_updatedb, and similarly for daily,weekly etc
+
+# I we weren't called via /etc/cron.*, we run anyway (one-shot, or
+# via other cron timing
+
+# If NSS_SERVICE is configured in /etc/sysconfig/nss_updatedb, we update
+# using that service, otherwise we look for a line in /etc/nsswitch.conf
+# that looks like this:
+# passwd: files <service> [NOTFOUND=return]
+# If we don't find one, we exit with an error message (since nss is not
+# correctly configured for us anyway
+
+UPDATENSS="hourly"
+CONFIG_FILE="/etc/sysconfig/nss_updatedb"
+
+. $CONFIG_FILE
+
+IAM=$0
+
+case $IAM in
+	/etc/cron.*)
+	CRONTIME=${IAM#/etc/cron.}
+	CRONTIME=${CRONTIME//\/*/}
+	if [ "$CRONTIME" != "$UPDATENSS" ]
+	then exit 0
+	fi
+	;;
+esac
+
+# Find out which service we should update from
+
+if [ -z "$NSS_SERVICE" ]; then
+	# workaround for broken drakauth (#49769)
+	NSS_SERVICE=`sed -n -e 's/[[:space:]]\+\(files\|compat\|db\|tcb\|tinycdb\)[[:space:]]\+/ /g;s,^[[:space:]]*passwd:[[:space:]]\+\([^[:space:]]\+\)[[:space:]]\+\[NOTFOUND=return\].*,\1,gp' /etc/nsswitch.conf`
+	if [ -z "$NSS_SERVICE" ]; then
+		echo "No NSS_SERVICE configured in $CONFIG_FILE and /etc/nsswitch.conf does not seem to be configured correctly" >&2
+		exit 5
+	fi
+fi
+
+if [ "$ONLY_LOGGED_USERS" = "yes" ]; then
+    for user in `LC_ALL=C lastlog | egrep -v '**Never|From.*Latest|^root' | cut -f 1 -d ' ' | sort -u`; do
+	if ! egrep -q "^$user" /etc/passwd; then
+		nss_updatedb $NSS_SERVICE passwd "$user" > /dev/null
+		OLDIFS="$IFS"
+		IFS=","
+		# it lists also the primary group
+		for group in `getgrouplist $user`; do
+		    nss_updatedb $NSS_SERVICE group "$group" > /dev/null
+		done
+		IFS="$OLDIFS"
+	fi
+    done
+else
+    nss_updatedb $NSS_SERVICE > /dev/null
+fi

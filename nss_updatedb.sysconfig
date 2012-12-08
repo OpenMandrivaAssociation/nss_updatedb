@@ -1,0 +1,13 @@
+# Configuration for the nss_updatedb cron service
+
+# Set this to the name service nss_updatedb should update from
+# if it can't detect it correctly from /etc/nsswitch.conf
+#NSS_SERVICE=ldap
+
+# Set the cron interval you want to run nss_updatedb with if
+# the default of "hourly" is not suitable
+#CRONTIME=hourly
+
+# Set this variable if you want the crontab to look only for
+# people that has been logged on this system.
+#ONLY_LOGGED_USERS=yes

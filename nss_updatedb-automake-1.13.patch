@@ -1,0 +1,15 @@
+--- nss_updatedb-10/configure.in.bero	2013-01-16 01:32:52.363333976 +0100
++++ nss_updatedb-10/configure.in	2013-01-16 01:33:03.560200721 +0100
+@@ -1,9 +1,9 @@
+-AC_INIT(updatedb.c)
++AC_INIT(nss_updatedb, 10)
+ AC_CANONICAL_SYSTEM
+ AC_PREFIX_DEFAULT()
+ 
+-AM_INIT_AUTOMAKE(nss_updatedb, 10)
+-AM_CONFIG_HEADER(config.h)
++AM_INIT_AUTOMAKE
++AC_CONFIG_HEADERS([config.h])
+ 
+ AC_PROG_CC
+ AC_PROG_CPP

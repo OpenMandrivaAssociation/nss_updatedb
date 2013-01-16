@@ -3,26 +3,26 @@
 Summary: 	A caching nss module for disconnected operation
 Name:      	nss_updatedb
 Version:   	10
-Release:   	%mkrel 3
+Release:   	5
 Group:		System/Libraries
 License:	GPL
 URL:		http://www.padl.com/
-Source: 	http://www.padl.com/download/%{name}-%{version}.tar.gz
+Source0: 	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Source1:	nss_updatedb.cron
 Source2:	nss_updatedb.sysconfig
 # Uses getgrouplist(3) to find out the groups a user belongs to
 # without enumerating all possible groups first
 Source3:	getgrouplist.c
 Patch0:		nss_updatedb-libdir.patch
+Patch1:		nss_updatedb-automake-1.13.patch
 Patch2:		nss_updatedb-4-key.patch
 %if %{?notmdk:1}%{?!notmdk:0}
 BuildRequires:	db4-devel >= 4.0
 %else
 BuildRequires:	db_nss-devel >= 4.2.52-5mdk
 %endif
-BuildRequires:	automake1.4
+BuildRequires:	automake
 Requires:	nss_db
-Buildroot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 The nss_updatedb utility maintains a local cache of network
@@ -34,8 +34,7 @@ also available from PADL.
 
 %prep
 %setup -q
-%patch0 -p1 -b .libdir
-%patch2 -p1 -b .key
+%apply_patches
 install -m 0644 %{SOURCE3} .
 
 %build

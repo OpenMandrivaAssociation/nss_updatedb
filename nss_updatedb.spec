@@ -1,7 +1,7 @@
 Summary:	A caching nss module for disconnected operation
 Name:		nss_updatedb
 Version:	10
-Release:	5
+Release:	6
 Group:		System/Libraries
 License:	GPLv2
 Url:		http://www.padl.com/

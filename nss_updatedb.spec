@@ -1,7 +1,7 @@
 Summary:	A caching nss module for disconnected operation
 Name:		nss_updatedb
 Version:	10
-Release:	6
+Release:	7
 Group:		System/Libraries
 License:	GPLv2
 Url:		http://www.padl.com/
@@ -37,7 +37,7 @@ echo "#define DB_DIR \"/var/lib/misc\"" >> config.h.in
 
 %make DEFS="-DHAVE_CONFIG_H -I/usr/include/db_nss"
 
-gcc %{optflags} -Werror getgrouplist.c -o getgrouplist
+%{__cc} %{optflags} -Werror getgrouplist.c -o getgrouplist
 
 %install
 %makeinstall

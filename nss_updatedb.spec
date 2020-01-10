@@ -27,7 +27,7 @@ also available from PADL.
 
 %prep
 %setup -q
-%apply_patches
+%autopatch -p1
 install -m 0644 %{SOURCE3} .
 autoreconf -fi
 

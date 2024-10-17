@@ -4,7 +4,7 @@ Version:	10
 Release:	7
 Group:		System/Libraries
 License:	GPLv2
-Url:		http://www.padl.com/
+Url:		https://www.padl.com/
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Source1:	nss_updatedb.cron
 Source2:	nss_updatedb.sysconfig
